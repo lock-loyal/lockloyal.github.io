@@ -1,270 +1,323 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM-Pass | 稳定、高效、透明的聚合接入服务</title>
+    <title>LLM-Pass | 下一代 AI 聚合接入</title>
     <style>
-        /* 1. 基础重置 */
+        :root {
+            --bg: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --secondary: #22d3ee;
+            --text-p: #9ca3af;
+            --text-h: #f9fafb;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --accent-green: #059669;
-            --accent-amber: #d97706;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(34, 211, 238, 0.05) 0%, transparent 30%);
+            color: var(--text-h);
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding: 80px 20px;
+        }
+
+        /* 网格纹理背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 60px 24px;
         }
 
-        /* 2. 顶部区域 */
-        .hero {
+        header {
             text-align: center;
             margin-bottom: 60px;
         }
 
-        .hero h1 {
-            font-size: 2.5rem;
+        header h1 {
+            font-size: 3rem;
             font-weight: 800;
-            letter-spacing: -0.025em;
+            background: linear-gradient(to bottom right, #fff 30%, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 16px;
-            color: var(--text-main);
         }
 
-        .hero p {
-            font-size: 1.125rem;
-            color: var(--text-muted);
+        header p {
+            color: var(--text-p);
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
-        /* 3. 网格布局 */
-        .grid {
+        /* Bento Grid 布局 */
+        .bento-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: minmax(200px, auto);
+            gap: 20px;
         }
 
-        /* 4. 卡片样式 */
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
             padding: 32px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden;
         }
 
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05);
-            border-color: #cbd5e1;
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 卡片标题 */
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .card-header span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border-radius: 99px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
 
         .card-title {
             font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 20px;
+        }
+
+        /* 1. 客服卡片 (宽) */
+        .card-contact {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.7) 0%, rgba(30, 58, 138, 0.2) 100%);
+        }
+
+        .wechat-id {
+            font-family: monospace;
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin: 10px 0;
+            display: block;
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+        }
+
+        /* 2. 分流卡片 */
+        .card-shunting {
+            grid-column: span 1;
+        }
+
+        .model-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #1e293b;
+            border-radius: 6px;
+            color: #fff;
+            margin: 2px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        /* 3. 文档卡片 */
+        .card-docs {
+            grid-column: span 1;
+        }
+
+        .doc-item {
             display: flex;
             align-items: center;
-        }
-
-        .card-title::before {
-            content: "";
-            width: 4px;
-            height: 18px;
-            background: var(--primary-color);
-            margin-right: 12px;
-            border-radius: 10px;
-        }
-
-        /* 5. 内容元素 */
-        .sub-title {
-            font-size: 0.8125rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 16px;
-            margin-bottom: 8px;
-        }
-
-        .code-box {
-            background: #f1f5f9;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 0.875rem;
-            color: var(--text-main);
-            word-break: break-all;
+            justify-content: space-between;
+            padding: 14px;
             margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .desc-text {
-            font-size: 0.9375rem;
-            color: #475569;
-            margin-bottom: 12px;
-        }
-
-        .highlight-blue { color: var(--primary-color); font-weight: 600; }
-        .highlight-red { color: #e11d48; font-weight: 700; }
-
-        /* 文档链接样式 */
-        .doc-link {
-            display: block;
-            padding: 12px 16px;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
             text-decoration: none;
-            font-size: 0.9375rem;
-            margin-bottom: 12px;
-            transition: all 0.2s;
+            color: var(--text-p);
+            transition: 0.2s;
+            border: 1px solid transparent;
         }
 
-        .doc-link:hover {
-            background: #f8fafc;
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+        .doc-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border);
+            color: #fff;
         }
 
-        .doc-link-pending {
-            display: block;
-            padding: 12px 16px;
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
+        /* 4. 接口卡片 */
+        .card-api {
+            grid-column: span 1;
+        }
+
+        .code-snippet {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            padding: 12px;
+            background: #000;
             border-radius: 10px;
-            color: #94a3b8;
-            font-size: 0.9375rem;
+            color: #a5b4fc;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* 底部状态条 */
-        .status-footer {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px dashed #e2e8f0;
-            font-size: 0.8125rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        /* 5. 福利卡片 */
+        .card-perks {
+            grid-column: span 1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(17, 24, 39, 0.7) 100%);
         }
 
-        /* 6. 响应式调整 */
-        @media (max-width: 640px) {
-            .container { padding: 40px 16px; }
-            .hero h1 { font-size: 1.875rem; }
-            .grid { grid-template-columns: 1fr; }
+        .token-count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-contact {
+                grid-column: span 1;
+            }
+
+            header h1 {
+                font-size: 2.2rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <header class="hero">
-        <h1>LLM-Pass</h1>
-        <p>稳定、高效、透明的聚合接入服务，支持多种接口风格与使用场景。</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>LLM-Pass</h1>
+            <p>提供稳定、透明、高效的一站式 LLM 模型聚合接入服务</p>
+        </header>
 
-    <main class="grid">
-        
-        <div class="card">
-            <h2 class="card-title">客服支持</h2>
-            <p class="desc-text">如需开通免费订阅，请添加客服微信：</p>
-            <div class="code-box" style="background: #ecfdf5; border-color: #a7f3d0; color: var(--accent-green); font-weight: bold; font-size: 1.1rem; text-align: center;">
-                llmpass-lockloyal
-            </div>
-            <p class="desc-text">添加后发送您的用户名，即可手动开通。</p>
-            <div class="status-footer" style="color: var(--accent-amber);">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                订阅额度每日刷新重置
-            </div>
-        </div>
+        <div class="bento-grid">
 
-        <div class="card">
-            <h2 class="card-title">模型分流说明</h2>
-            <p class="desc-text">当前平台默认优先使用 <span class="highlight-blue">GLM-5.1</span>。</p>
-            <p class="desc-text">为防止个人订阅额度被迅速打满及官方渠道拥挤限流，高峰时段会智能分流至 <span class="highlight-blue">GLM-5</span> 或 <span class="highlight-blue">Kimi-2.5</span>。</p>
-            <div class="status-footer">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                日志保证调用模型透明展示，绝不造假
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title">开放文档</h2>
-            <a href="https://acngo4qi9gao.feishu.cn/wiki/UpkdwdcOViixgakVJ08cZqRynwy?from=from_copylink" target="_blank" class="doc-link">
-                01. LLM-Pass 平台使用指南
-            </a>
-            <a href="https://acngo4qi9gao.feishu.cn/wiki/NmwMwi5izi0jPrk6Ov6cUC36nXg?from=from_copylink" target="_blank" class="doc-link">
-                02. Claude Code 中使用 LLM-Pass
-            </a>
-            <a href="https://acngo4qi9gao.feishu.cn/wiki/VveRwwa2QigkgPkKMG9cOxE4nHb?from=from_copylink" target="_blank" class="doc-link">
-                03. VS Code 插件 Cline 中使用
-            </a>
-            <div class="doc-link-pending">
-                04. OpenCode 中使用 (编写中...)
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title">接口地址</h2>
-            
-            <div class="sub-title">Anthropic 风格（推荐）</div>
-            <div class="code-box">https://llmpass.lockloyal.cn</div>
-            
-            <div class="sub-title">OpenAI Chat 风格</div>
-            <div class="code-box">https://llmpass.lockloyal.cn/v1</div>
-            
-            <p class="desc-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-                * 完整 Endpoint 请参考文档中的配置指南
-            </p>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title">新用户与邀请福利</h2>
-            <p class="desc-text">新用户注册登录即可领取 <span class="highlight-red">500,000</span> Token。</p>
-            <p class="desc-text">每邀请一位新用户注册登录，再领取 <span class="highlight-red">500,000</span> Token。</p>
-            
-            <div style="margin-top: 20px; background: #eff6ff; padding: 16px; border-radius: 12px; border: 1px solid #dbeafe;">
-                <p style="font-size: 0.875rem; color: #1e40af; margin: 0;">
-                    🎉 愿这份小小福利，陪你走得更远一点。
+            <div class="card card-contact">
+                <div class="card-header">
+                    <span>SUPPORT</span>
+                    <div class="card-title">客服支持</div>
+                </div>
+                <p style="color: var(--text-p); margin-bottom: 15px;">如需开通免费订阅，请添加客服微信：</p>
+                <strong class="wechat-id">llmpass-lockloyal</strong>
+                <p style="color: var(--secondary); font-size: 0.9rem; margin-top: 15px;">
+                    ● 发送您的用户名，即可手动开通。订阅额度每日重置。
                 </p>
             </div>
+
+            <div class="card card-shunting">
+                <div class="card-header">
+                    <span>SYSTEM</span>
+                    <div class="card-title">智能分流</div>
+                </div>
+                <p style="font-size: 0.95rem; margin-bottom: 15px;">
+                    默认优先调度 <span style="color:var(--primary); font-weight:700;">GLM-5.1</span>。
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-p);">
+                    高峰期将根据负载20%流量智能分发到：
+                </p>
+                <div style="margin-top: 10px;">
+                    <span class="model-tag">GLM-5</span>
+                    <span class="model-tag">Kimi-2.5</span>
+                </div>
+                <p style="margin-top: 20px; font-size: 0.75rem; color: #64748b;">
+                    * 调用日志实时透明，模型绝不弄虚作假。
+                </p>
+            </div>
+
+            <div class="card card-docs">
+                <div class="card-header">
+                    <span>DOCS</span>
+                    <div class="card-title">快速上手</div>
+                </div>
+                <a href="https://acngo4qi9gao.feishu.cn/wiki/UpkdwdcOViixgakVJ08cZqRynwy" class="doc-item">
+                    平台使用指南 <span>→</span>
+                </a>
+                <a href="https://acngo4qi9gao.feishu.cn/wiki/NmwMwi5izi0jPrk6Ov6cUC36nXg" class="doc-item">
+                    Claude Code 配置 <span>→</span>
+                </a>
+                <a href="https://acngo4qi9gao.feishu.cn/wiki/VveRwwa2QigkgPkKMG9cOxE4nHb" class="doc-item">
+                    Cline 插件接入 <span>→</span>
+                </a>
+                <p style="font-size: 0.75rem; color: #4b5563; padding-left: 14px;">OpenCode 文档正在编写中...</p>
+            </div>
+
+            <div class="card card-api">
+                <div class="card-header">
+                    <span>API</span>
+                    <div class="card-title">BaseUrl配置</div>
+                </div>
+                <p style="font-size: 0.8rem; color:var(--text-p); margin-bottom: 8px;">Anthropic Style (Recommended)</p>
+                <div class="code-snippet">https://llmpass.lockloyal.cn</div>
+                <p style="font-size: 0.8rem; color:var(--text-p); margin-top: 15px; margin-bottom: 8px;">OpenAI Chat Style
+                </p>
+                <div class="code-snippet">https://llmpass.lockloyal.cn/v1</div>
+            </div>
+
+            <div class="card card-perks">
+                <div class="card-header">
+                    <span>GIFT</span>
+                    <div class="card-title">新用户福利</div>
+                </div>
+                <div class="token-count">500,000</div>
+                <p style="color: var(--text-p); font-size: 0.9rem;">注册即领免费 Token</p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                <p style="font-size: 0.85rem; color: #fff;">
+                    邀请好友再得 <span style="color:var(--secondary);">500K</span>
+                </p>
+                <p style="margin-top: 15px; font-size: 0.75rem; font-style: italic; color: var(--text-p);">
+                    "愿这份小小福利，陪你走得更远。"
+                </p>
+            </div>
+
         </div>
 
-    </main>
-
-    <footer style="text-align: center; margin-top: 60px; color: #94a3b8; font-size: 0.875rem;">
-        &copy; 2026 LLM-Pass Service. All rights reserved.
-    </footer>
-</div>
+        <footer style="text-align: center; margin-top: 80px; color: #4b5563; font-size: 0.8rem;">
+            &copy; 2026 LLM-Pass Service Platform. Optimized for performance and transparency.
+        </footer>
+    </div>
 
 </body>
+
 </html>
